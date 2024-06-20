@@ -10,7 +10,8 @@
            "args": [
                 "build",
                 ".",
-                "-debug"
+                "-debug",
+                "-out:bin/odin_tetris.exe"
            ]
         }
     ]
