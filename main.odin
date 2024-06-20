@@ -23,6 +23,7 @@ GameState :: struct {
 
     isStoped: bool,
     isLost: bool,
+    hideHints: bool,
     score: i32,
 
     activeShapeColor: ray.Color,
@@ -33,7 +34,7 @@ GameState :: struct {
 spawnShape :: proc(gameState: ^GameState) {
     clear(&gameState.activeShape);
     
-    data: []int = { 1, 2, 3, 4 };
+    data: []int = { 1,2,3,4 };
     randomShape := rand.choice(data[:]);
 
     if (randomShape == 1) {
@@ -43,7 +44,7 @@ spawnShape :: proc(gameState: ^GameState) {
     } else if (randomShape == 3) {
         spawnZip(gameState);
     } else if (randomShape == 4) {
-        spawnVerticalZip(gameState);
+        spawnFlippedZip(gameState);
     }
 
     offsetX : i32 = MAP_SIZE_X / 2;
@@ -82,18 +83,89 @@ spawnZip :: proc(gameState: ^GameState) {
     append(&gameState.activeShape, int2{ 2, 1 });    
 }
 
-spawnVerticalZip :: proc(gameState: ^GameState) {
+spawnFlippedZip :: proc(gameState: ^GameState) {
     gameState.activeShapeColor = ray.VIOLET;
     
-    append(&gameState.activeShape, int2{ 1, 0 });
-    append(&gameState.activeShape, int2{ 1, 1 });
+    append(&gameState.activeShape, int2{ 0, 0 });
     append(&gameState.activeShape, int2{ 0, 1 });
-    append(&gameState.activeShape, int2{ 0, 2 });    
+    append(&gameState.activeShape, int2{ 1, 1 });
+    append(&gameState.activeShape, int2{ 1, 2 });    
 }
+
+rotateShape :: proc(gameState: ^GameState) {
+    // get top-left, bottom-right corners of a shape 
+    top := gameState.activeShape[0].y;
+    bottom := gameState.activeShape[0].y;
+    left := gameState.activeShape[0].x;
+    right := gameState.activeShape[0].x;
+
+    for tile in gameState.activeShape {
+        if tile.y > top {top = tile.y;}
+        if tile.y < bottom {bottom = tile.y;}
+        if tile.x > right {right = tile.x;}
+        if tile.x < left {left = tile.x;}
+    }
+
+    height := top - bottom;
+    width := right - left;
+
+    // create tmp shape
+    tmpShape := make([dynamic]int2, 0, cap(gameState.activeShape));
+    append(&tmpShape, ..gameState.activeShape[:]);
+
+    for &tile in tmpShape {
+        tile.x -= left;
+        tile.y -= bottom;
+    }
+
+    for &tile in tmpShape {
+        tmp := tile.x;
+        tile.x = height - tile.y + 1;
+        tile.y = tmp; 
+    }
+
+    for &tile in tmpShape {
+        tile.x += left - 1;
+        tile.y += bottom;
+    }
+
+    // check collision
+    isWrongTile := false;
+    for tile in tmpShape {
+        if (isTileOutsideOfMap(tile) || isTileHitOtherShape(tile, gameState)) {
+            isWrongTile = true;
+            break;
+        } 
+    }
+    
+    if (isWrongTile) {
+        delete(tmpShape);
+        return;    
+    }
+
+    delete(gameState.activeShape);
+    gameState.activeShape = tmpShape;
+}
+
+isTileOutsideOfMap :: proc(tile: int2) -> bool {
+    return tile.x < 0 || tile.x >= MAP_SIZE_X || tile.y < 0 || tile.y >= MAP_SIZE_Y;
+}
+
+isTileHitOtherShape :: proc(tile: int2, gameState: ^GameState) -> bool {
+    return gameState.tiles[tile.y][tile.x] != 0;
+}
+
+// isAnyTile :: proc(proc (logLevel: TraceLogLevel, text: cstring, args: c.va_list)) -> bool {
+
+// }
 
 updateGameState :: proc(gameState: ^GameState, deltaTime: f32) {
     if (ray.IsKeyPressed(ray.KeyboardKey.S)) {
         gameState.isStoped = !gameState.isStoped;
+    }
+    
+    if (ray.IsKeyPressed(ray.KeyboardKey.Q)) {
+        rotateShape(gameState);
     }
 
     if (gameState.isStoped) { return; }
@@ -121,11 +193,11 @@ updateGameState :: proc(gameState: ^GameState, deltaTime: f32) {
     }
 
     if (moveDirection != 0) {           
-        isOusideOfMap := false;   
+        isOusideOfMap := false; 
         for &tile in gameState.activeShape {
             tile.x += moveDirection;
 
-            if (tile.x < 0 || tile.x >= MAP_SIZE_X || gameState.tiles[tile.y][tile.x] != 0) {
+            if (isTileOutsideOfMap(tile) || isTileHitOtherShape(tile, gameState)) {
                 isOusideOfMap = true;
             }
         }
@@ -230,6 +302,25 @@ drawTile :: proc(windowSize: int2, tile: int2, size: int2, color: ray.Color, dar
     }, 0.3, 3.0, 2.0, color);
 }
 
+showUI :: proc(gameState: ^GameState, windowSize: int2) {
+    if (gameState.isLost) {
+        textWidth := ray.MeasureText("LOST", 50);
+        ray.DrawText("LOST", windowSize.x / 2 - textWidth / 2, windowSize.y / 2, 50, ray.WHITE);    
+    }
+
+    ray.DrawText(fmt.ctprintf("SCORE: %d", gameState.score), 0, 0, 20, ray.WHITE);    
+
+    if (ray.IsKeyPressed(ray.KeyboardKey.H)) {
+        gameState.hideHints = !gameState.hideHints;
+    }
+
+    if (!gameState.hideHints) {        
+        ray.DrawText("H - Hide Hints", 0, 20, 16, ray.WHITE);
+        ray.DrawText("Q - Rotate", 0, 40, 16, ray.WHITE);
+        ray.DrawText("S - Stop", 0, 60, 16, ray.WHITE);
+    }
+}
+
 main :: proc() {
     gameState := GameState {
         regularDeltaTick = 0.3,
@@ -246,7 +337,7 @@ main :: proc() {
     ray.InitWindow(windowSize.x, windowSize.y, "TETRIS");
     defer ray.CloseWindow();
 
-    ray.SetTargetFPS(144);
+    //ray.SetTargetFPS(144);
     
     visibleVerticalTilesCount : i32 = MAP_SIZE_Y - 4;
 
@@ -273,12 +364,7 @@ main :: proc() {
             drawTile(windowSize, tile, tileSize, gameState.activeShapeColor, 2);
         }
 
-        if (gameState.isLost) {
-            textWidth := ray.MeasureText("LOST", 50);
-            ray.DrawText("LOST", windowSize.x / 2 - textWidth / 2, windowSize.y / 2, 50, ray.WHITE);    
-        }
-
-        ray.DrawText(fmt.ctprintf("SCORE: %d", gameState.score), 0, 0, 20, ray.WHITE);    
+        showUI(&gameState, windowSize);
 
         ray.EndDrawing();
     }
