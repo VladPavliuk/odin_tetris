@@ -26,7 +26,7 @@ GameState :: struct {
 }
 
 spawnShape :: proc(gameState: ^GameState) {
-    clear(&gameState.activeShape);
+    clear(&gameState.activeShape)
     
     spawners := [?]proc (^GameState) {
         spawnLine,
@@ -38,277 +38,277 @@ spawnShape :: proc(gameState: ^GameState) {
         spawnT,
         spawnL,
         spawnFlippedL,
-    };
-
-    if len(gameState.nextShapes) == 0 {
-        append(&gameState.nextShapes, ..spawners[:]);
     }
 
-    rand.shuffle(gameState.nextShapes[:]);
+    if len(gameState.nextShapes) == 0 {
+        append(&gameState.nextShapes, ..spawners[:])
+    }
 
-    spawner := pop(&gameState.nextShapes);
-    spawner(gameState);
+    rand.shuffle(gameState.nextShapes[:])
 
-    offsetX : i32 = MAP_SIZE_X / 2;
-    offsetY : i32 = MAP_SIZE_Y - 4;
+    spawner := pop(&gameState.nextShapes)
+    spawner(gameState)
+
+    offsetX : i32 = MAP_SIZE_X / 2
+    offsetY : i32 = MAP_SIZE_Y - 4
 
     for &tile in gameState.activeShape {
-        tile.x += offsetX;
+        tile.x += offsetX
         tile.y += offsetY
     } 
 }
 
 spawnLine :: proc(gameState: ^GameState) {
-    gameState.activeShapeColor = ray.GREEN;
+    gameState.activeShapeColor = ray.GREEN
 
     tiles := [?]int2{
         { 0, 0 },
         { 0, 1 },
         { 0, 2 },
-        { 0, 3 }
-    };
+        { 0, 3 },
+    }
 
-    append(&gameState.activeShape, ..tiles[:]);
+    append(&gameState.activeShape, ..tiles[:])
 }
 
 spawnRectangle :: proc(gameState: ^GameState) {
-    gameState.activeShapeColor = ray.YELLOW;
+    gameState.activeShapeColor = ray.YELLOW
 
     tiles := [?]int2{
         { 0, 0 },
         { 0, 1 },
         { 1, 0 },
-        { 1, 1 }
-    };
+        { 1, 1 },
+    }
 
-    append(&gameState.activeShape, ..tiles[:]);
+    append(&gameState.activeShape, ..tiles[:])
 }
 
 spawnZip :: proc(gameState: ^GameState) {
-    gameState.activeShapeColor = ray.BLUE;
+    gameState.activeShapeColor = ray.BLUE
 
     tiles := [?]int2{
         { 0, 0 },
         { 1, 0 },
         { 1, 1 },
-        { 2, 1 }
-    };
+        { 2, 1 },
+    }
 
-    append(&gameState.activeShape, ..tiles[:]);
+    append(&gameState.activeShape, ..tiles[:])
 }
 
 spawnFlippedZip :: proc(gameState: ^GameState) {
-    gameState.activeShapeColor = ray.VIOLET;
+    gameState.activeShapeColor = ray.VIOLET
     
     tiles := [?]int2{
         { 0, 0 },
         { 0, 1 },
         { 1, 1 },
-        { 1, 2 }
-    };
+        { 1, 2 },
+    }
 
-    append(&gameState.activeShape, ..tiles[:]);
+    append(&gameState.activeShape, ..tiles[:])
 }
 
 spawnT :: proc(gameState: ^GameState) {
-    gameState.activeShapeColor = ray.MAGENTA;
+    gameState.activeShapeColor = ray.MAGENTA
     
     tiles := [?]int2{
         { 0, 0 },
         { 1, 0 },
         { 2, 0 },
-        { 1, 1 }
-    };
+        { 1, 1 },
+    }
 
-    append(&gameState.activeShape, ..tiles[:]);
+    append(&gameState.activeShape, ..tiles[:])
 }
 
 spawnL :: proc(gameState: ^GameState) {
-    gameState.activeShapeColor = ray.BEIGE;
+    gameState.activeShapeColor = ray.BEIGE
     
     tiles := [?]int2{
         { 0, 0 },
         { 1, 0 },
         { 2, 0 },
-        { 2, 1 }
-    };
+        { 2, 1 },
+    }
 
-    append(&gameState.activeShape, ..tiles[:]);
+    append(&gameState.activeShape, ..tiles[:])
 }
 
 spawnFlippedL :: proc(gameState: ^GameState) {
-    gameState.activeShapeColor = ray.SKYBLUE;
+    gameState.activeShapeColor = ray.SKYBLUE
     
     tiles := [?]int2{
         { 0, 0 },
         { 1, 0 },
         { 2, 0 },
-        { 0, 1 }
-    };
+        { 0, 1 },
+    }
 
-    append(&gameState.activeShape, ..tiles[:]);
+    append(&gameState.activeShape, ..tiles[:])
 }
 
 rotateShape :: proc(gameState: ^GameState) {
     // get top-left, bottom-right corners of a shape 
-    top := gameState.activeShape[0].y;
-    bottom := gameState.activeShape[0].y;
-    left := gameState.activeShape[0].x;
-    right := gameState.activeShape[0].x;
+    top := gameState.activeShape[0].y
+    bottom := gameState.activeShape[0].y
+    left := gameState.activeShape[0].x
+    right := gameState.activeShape[0].x
 
     for tile in gameState.activeShape {
-        if tile.y > top {top = tile.y;}
-        if tile.y < bottom {bottom = tile.y;}
-        if tile.x > right {right = tile.x;}
-        if tile.x < left {left = tile.x;}
+        if tile.y > top {top = tile.y}
+        if tile.y < bottom {bottom = tile.y}
+        if tile.x > right {right = tile.x}
+        if tile.x < left {left = tile.x}
     }
 
-    height := top - bottom;
+    height := top - bottom
 
     // create tmp shape
-    tmpShape := make([dynamic]int2, 0, cap(gameState.activeShape));
-    append(&tmpShape, ..gameState.activeShape[:]);
+    tmpShape := make([dynamic]int2, 0, cap(gameState.activeShape))
+    append(&tmpShape, ..gameState.activeShape[:])
 
     for &tile in tmpShape {
-        tile.x -= left;
-        tile.y -= bottom;
+        tile.x -= left
+        tile.y -= bottom
     }
 
     for &tile in tmpShape {
-        tmp := tile.x;
-        tile.x = height - tile.y + 1;
-        tile.y = tmp; 
+        tmp := tile.x
+        tile.x = height - tile.y + 1
+        tile.y = tmp
     }
 
     for &tile in tmpShape {
-        tile.x += left - 1;
-        tile.y += bottom;
+        tile.x += left - 1
+        tile.y += bottom
     }
 
     // check collision
-    isWrongTile := false;
+    isWrongTile := false
     for tile in tmpShape {
         if (isTileOutsideOfMap(tile) || isTileHitOtherShape(tile, gameState)) {
-            isWrongTile = true;
-            break;
+            isWrongTile = true
+            break
         } 
     }
     
     if (isWrongTile) {
-        delete(tmpShape);
-        return;    
+        delete(tmpShape)
+        return 
     }
 
-    delete(gameState.activeShape);
-    gameState.activeShape = tmpShape;
+    delete(gameState.activeShape)
+    gameState.activeShape = tmpShape
 }
 
 isTileOutsideOfMap :: proc(tile: int2) -> bool {
-    return tile.x < 0 || tile.x >= MAP_SIZE_X || tile.y < 0 || tile.y >= MAP_SIZE_Y;
+    return tile.x < 0 || tile.x >= MAP_SIZE_X || tile.y < 0 || tile.y >= MAP_SIZE_Y
 }
 
 isTileHitOtherShape :: proc(tile: int2, gameState: ^GameState) -> bool {
-    return gameState.tiles[tile.y][tile.x] != 0;
+    return gameState.tiles[tile.y][tile.x] != 0
 }
 
 updateGameState :: proc(gameState: ^GameState, deltaTime: f32) {
     if (ray.IsKeyPressed(ray.KeyboardKey.S)) {
-        gameState.isStoped = !gameState.isStoped;
+        gameState.isStoped = !gameState.isStoped
     }
     
     if (ray.IsKeyPressed(ray.KeyboardKey.Q)) {
-        rotateShape(gameState);
+        rotateShape(gameState)
     }
 
-    if (gameState.isStoped) { return; }
+    if (gameState.isStoped) { return }
 
     if gameState.isLost {
         if (ray.IsKeyPressed(ray.KeyboardKey.R)) {
-            gameState.isLost = false;
-            gameState.score = 0;
-            clear(&gameState.nextShapes);
+            gameState.isLost = false
+            gameState.score = 0
+            clear(&gameState.nextShapes)
             
             // clear map
             for y : i32 = 0; y < MAP_SIZE_Y; y += 1 {
                 for x : i32 = 0; x < MAP_SIZE_X; x += 1 {
-                    gameState.tiles[y][x] = 0;
+                    gameState.tiles[y][x] = 0
                 }
             }
         }
-        return; 
+        return
     }
 
-    moveDirection : i32 = 0;
+    moveDirection : i32 = 0
     if (ray.IsKeyPressed(ray.KeyboardKey.A) || ray.IsKeyPressed(ray.KeyboardKey.LEFT)) {
-        moveDirection = -1;
+        moveDirection = -1
     }
     if (ray.IsKeyPressed(ray.KeyboardKey.D) || ray.IsKeyPressed(ray.KeyboardKey.RIGHT)) {
-        moveDirection = 1;
+        moveDirection = 1
     }
 
     if (moveDirection != 0) {           
-        isOusideOfMap := false; 
+        isOusideOfMap := false
         for &tile in gameState.activeShape {
-            tile.x += moveDirection;
+            tile.x += moveDirection
 
             if (isTileOutsideOfMap(tile) || isTileHitOtherShape(tile, gameState)) {
-                isOusideOfMap = true;
+                isOusideOfMap = true
             }
         }
 
         if (isOusideOfMap) {
             for &tile in gameState.activeShape {
-                tile.x -= moveDirection;
+                tile.x -= moveDirection
             }
         }
     }
 
     if (ray.IsKeyDown(ray.KeyboardKey.SPACE)) {
-        gameState.currentDeltaTick = gameState.fastDeltaTick;
+        gameState.currentDeltaTick = gameState.fastDeltaTick
     } else {
-        gameState.currentDeltaTick = gameState.regularDeltaTick;
+        gameState.currentDeltaTick = gameState.regularDeltaTick
     }
 
-    gameState.deltaTimeTotal += deltaTime;
+    gameState.deltaTimeTotal += deltaTime
     if (gameState.deltaTimeTotal < gameState.currentDeltaTick) {
-        return;
+        return
     }
-    gameState.deltaTimeTotal = 0.0;
+    gameState.deltaTimeTotal = 0.0
 
     // update position
     for &tile in gameState.activeShape {
-        tile.y -= 1;
+        tile.y -= 1
     }
 
-    hitOtherShape := false;
-    hitFloor := false;
+    hitOtherShape := false
+    hitFloor := false
     for tile in gameState.activeShape {
         if (gameState.tiles[tile.y][tile.x] != 0) {
-            hitOtherShape = true;
+            hitOtherShape = true
         }
 
         if (tile.y == 0) {
-            hitFloor = true;
+            hitFloor = true
         }
     }
 
     if (hitOtherShape) {
         for &tile in gameState.activeShape {
-            tile.y += 1;
+            tile.y += 1
         }
     }
 
     if (hitOtherShape || hitFloor) {
         for tile in gameState.activeShape {
-            gameState.tiles[tile.y][tile.x] = gameState.activeShapeColor;
+            gameState.tiles[tile.y][tile.x] = gameState.activeShapeColor
         }
 
-        spawnShape(gameState);
+        spawnShape(gameState)
 
         for tile in gameState.activeShape {
             if (gameState.tiles[tile.y][tile.x] != 0) {
-                gameState.isLost = true;
-                break;
+                gameState.isLost = true
+                break
             }
         }
     }
@@ -316,21 +316,21 @@ updateGameState :: proc(gameState: ^GameState, deltaTime: f32) {
 
 checkFilledLines :: proc(gameState: ^GameState) {
     for lineIndex : i32 = 0; lineIndex < MAP_SIZE_Y; lineIndex += 1 {
-        filledLineIndex : i32 = lineIndex;
+        filledLineIndex : i32 = lineIndex
 
         for x : i32 = 0; x < MAP_SIZE_X; x += 1 {
             if (gameState.tiles[lineIndex][x] == 0) {
-                filledLineIndex = -1;
-                break;
+                filledLineIndex = -1
+                break
             }
         }
         
         if (filledLineIndex != -1) {
-            gameState.score += MAP_SIZE_X;
+            gameState.score += MAP_SIZE_X
 
             for y := filledLineIndex; y < MAP_SIZE_Y - 1; y += 1 {
                 for x : i32 = 0; x < MAP_SIZE_X; x += 1 {
-                    gameState.tiles[y][x] = gameState.tiles[y + 1][x];
+                    gameState.tiles[y][x] = gameState.tiles[y + 1][x]
                 }
             }
         }
