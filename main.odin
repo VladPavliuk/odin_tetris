@@ -52,7 +52,7 @@ main :: proc() {
             drawTile(windowSize, tile, tileSize, gameState.activeShapeColor, 2);
         }
 
-        showUI(&gameState, windowSize);
+        drawUI(&gameState, windowSize);
 
         ray.EndDrawing();
     }

@@ -23,7 +23,7 @@ drawTile :: proc(windowSize: int2, tile: int2, size: int2, color: ray.Color, dar
     }, 0.3, 3.0, 2.0, color);
 }
 
-showUI :: proc(gameState: ^GameState, windowSize: int2) {
+drawUI :: proc(gameState: ^GameState, windowSize: int2) {
     if (gameState.isLost) {
         textWidth := ray.MeasureText("LOST", 50);
         ray.DrawText("LOST", windowSize.x / 2 - textWidth / 2, windowSize.y / 2, 50, ray.WHITE);    
