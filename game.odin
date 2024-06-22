@@ -114,7 +114,7 @@ spawnT :: proc(gameState: ^GameState) {
 }
 
 spawnL :: proc(gameState: ^GameState) {
-    gameState.activeShapeColor = ray.LIME;
+    gameState.activeShapeColor = ray.BEIGE;
     
     tiles := [?]int2{
         { 0, 0 },
@@ -229,10 +229,10 @@ updateGameState :: proc(gameState: ^GameState, deltaTime: f32) {
     }
 
     moveDirection : i32 = 0;
-    if (ray.IsKeyPressed(ray.KeyboardKey.A)) {
+    if (ray.IsKeyPressed(ray.KeyboardKey.A) || ray.IsKeyPressed(ray.KeyboardKey.LEFT)) {
         moveDirection = -1;
     }
-    if (ray.IsKeyPressed(ray.KeyboardKey.D)) {
+    if (ray.IsKeyPressed(ray.KeyboardKey.D) || ray.IsKeyPressed(ray.KeyboardKey.RIGHT)) {
         moveDirection = 1;
     }
 
