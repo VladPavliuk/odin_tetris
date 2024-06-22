@@ -13,7 +13,7 @@
                 "-debug",
                 "-out:bin/odin_tetris.exe",
                 "-subsystem:windows",
-                "-strict-style"
+                "-strict-style",
                 // "-warnings-as-errors"
                 // "-o:speed",
                 // "-vet",

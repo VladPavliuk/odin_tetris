@@ -1,7 +1,5 @@
 package main
 
-import "core:c"
-
 import ray "vendor:raylib"
 
 int2 :: struct {
