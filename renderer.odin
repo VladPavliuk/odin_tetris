@@ -31,7 +31,7 @@ drawUI :: proc(gameState: ^GameState, windowSize: int2) {
 
     ray.DrawText(fmt.ctprintf("SCORE: %d", gameState.score), 0, 0, 20, ray.WHITE)   
 
-    if (ray.IsKeyPressed(ray.KeyboardKey.H)) {
+    if ray.IsKeyPressed(ray.KeyboardKey.H) {
         gameState.hideHints = !gameState.hideHints
     }
 
@@ -42,7 +42,7 @@ drawUI :: proc(gameState: ^GameState, windowSize: int2) {
         "SPACE - Fast",
     }
 
-    if (!gameState.hideHints) {
+    if !gameState.hideHints {
         startLocationY : i32 = 0
         for menuItem in menuItems {
             textWidth := ray.MeasureText(menuItem, 18)

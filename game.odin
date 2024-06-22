@@ -188,13 +188,13 @@ rotateShape :: proc(gameState: ^GameState) {
     // check collision
     isWrongTile := false
     for tile in tmpShape {
-        if (isTileOutsideOfMap(tile) || isTileHitOtherShape(tile, gameState)) {
+        if isTileOutsideOfMap(tile) || isTileHitOtherShape(tile, gameState) {
             isWrongTile = true
             break
         } 
     }
     
-    if (isWrongTile) {
+    if isWrongTile {
         delete(tmpShape)
         return 
     }
@@ -212,18 +212,18 @@ isTileHitOtherShape :: proc(tile: int2, gameState: ^GameState) -> bool {
 }
 
 updateGameState :: proc(gameState: ^GameState, deltaTime: f32) {
-    if (ray.IsKeyPressed(ray.KeyboardKey.S)) {
+    if ray.IsKeyPressed(ray.KeyboardKey.S) {
         gameState.isStoped = !gameState.isStoped
     }
     
-    if (ray.IsKeyPressed(ray.KeyboardKey.Q)) {
+    if ray.IsKeyPressed(ray.KeyboardKey.Q) {
         rotateShape(gameState)
     }
 
-    if (gameState.isStoped) { return }
+    if gameState.isStoped { return }
 
     if gameState.isLost {
-        if (ray.IsKeyPressed(ray.KeyboardKey.R)) {
+        if ray.IsKeyPressed(ray.KeyboardKey.R) {
             gameState.isLost = false
             gameState.score = 0
             clear(&gameState.nextShapes)
@@ -239,38 +239,38 @@ updateGameState :: proc(gameState: ^GameState, deltaTime: f32) {
     }
 
     moveDirection : i32 = 0
-    if (ray.IsKeyPressed(ray.KeyboardKey.A) || ray.IsKeyPressed(ray.KeyboardKey.LEFT)) {
+    if ray.IsKeyPressed(ray.KeyboardKey.A) || ray.IsKeyPressed(ray.KeyboardKey.LEFT) {
         moveDirection = -1
     }
-    if (ray.IsKeyPressed(ray.KeyboardKey.D) || ray.IsKeyPressed(ray.KeyboardKey.RIGHT)) {
+    if ray.IsKeyPressed(ray.KeyboardKey.D) || ray.IsKeyPressed(ray.KeyboardKey.RIGHT) {
         moveDirection = 1
     }
 
-    if (moveDirection != 0) {           
+    if moveDirection != 0 {           
         isOusideOfMap := false
         for &tile in gameState.activeShape {
             tile.x += moveDirection
 
-            if (isTileOutsideOfMap(tile) || isTileHitOtherShape(tile, gameState)) {
+            if isTileOutsideOfMap(tile) || isTileHitOtherShape(tile, gameState) {
                 isOusideOfMap = true
             }
         }
 
-        if (isOusideOfMap) {
+        if isOusideOfMap {
             for &tile in gameState.activeShape {
                 tile.x -= moveDirection
             }
         }
     }
 
-    if (ray.IsKeyDown(ray.KeyboardKey.SPACE)) {
+    if ray.IsKeyDown(ray.KeyboardKey.SPACE) {
         gameState.currentDeltaTick = gameState.fastDeltaTick
     } else {
         gameState.currentDeltaTick = gameState.regularDeltaTick
     }
 
     gameState.deltaTimeTotal += deltaTime
-    if (gameState.deltaTimeTotal < gameState.currentDeltaTick) {
+    if gameState.deltaTimeTotal < gameState.currentDeltaTick {
         return
     }
     gameState.deltaTimeTotal = 0.0
@@ -283,22 +283,22 @@ updateGameState :: proc(gameState: ^GameState, deltaTime: f32) {
     hitOtherShape := false
     hitFloor := false
     for tile in gameState.activeShape {
-        if (gameState.tiles[tile.y][tile.x] != 0) {
+        if gameState.tiles[tile.y][tile.x] != 0 {
             hitOtherShape = true
         }
 
-        if (tile.y == 0) {
+        if tile.y == 0 {
             hitFloor = true
         }
     }
 
-    if (hitOtherShape) {
+    if hitOtherShape {
         for &tile in gameState.activeShape {
             tile.y += 1
         }
     }
 
-    if (hitOtherShape || hitFloor) {
+    if hitOtherShape || hitFloor {
         for tile in gameState.activeShape {
             gameState.tiles[tile.y][tile.x] = gameState.activeShapeColor
         }
@@ -306,7 +306,7 @@ updateGameState :: proc(gameState: ^GameState, deltaTime: f32) {
         spawnShape(gameState)
 
         for tile in gameState.activeShape {
-            if (gameState.tiles[tile.y][tile.x] != 0) {
+            if gameState.tiles[tile.y][tile.x] != 0 {
                 gameState.isLost = true
                 break
             }
@@ -319,13 +319,13 @@ checkFilledLines :: proc(gameState: ^GameState) {
         filledLineIndex : i32 = lineIndex
 
         for x : i32 = 0; x < MAP_SIZE_X; x += 1 {
-            if (gameState.tiles[lineIndex][x] == 0) {
+            if gameState.tiles[lineIndex][x] == 0 {
                 filledLineIndex = -1
                 break
             }
         }
         
-        if (filledLineIndex != -1) {
+        if filledLineIndex != -1 {
             gameState.score += MAP_SIZE_X
 
             for y := filledLineIndex; y < MAP_SIZE_Y - 1; y += 1 {
