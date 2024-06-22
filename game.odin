@@ -18,6 +18,8 @@ GameState :: struct {
     hideHints: bool,
     score: i32,
 
+    nextShapes: [dynamic]proc (^GameState), // list of functions that spawn shapes
+
     activeShapeColor: ray.Color,
     activeShape: [dynamic]int2,
     tiles: [MAP_SIZE_Y][MAP_SIZE_X]ray.Color,
@@ -28,6 +30,8 @@ spawnShape :: proc(gameState: ^GameState) {
     
     spawners := [?]proc (^GameState) {
         spawnLine,
+        spawnLine, // duplicate it to increase probability
+        spawnRectangle,
         spawnRectangle,
         spawnZip,
         spawnFlippedZip,
@@ -36,8 +40,14 @@ spawnShape :: proc(gameState: ^GameState) {
         spawnFlippedL,
     };
 
-    randomSpawner := rand.choice(spawners[:]);
-    randomSpawner(gameState);
+    if len(gameState.nextShapes) == 0 {
+        append(&gameState.nextShapes, ..spawners[:]);
+    }
+
+    rand.shuffle(gameState.nextShapes[:]);
+
+    spawner := pop(&gameState.nextShapes);
+    spawner(gameState);
 
     offsetX : i32 = MAP_SIZE_X / 2;
     offsetY : i32 = MAP_SIZE_Y - 4;
