@@ -17,8 +17,6 @@ main :: proc() {
 
     spawnShape(&gameState);
 
-    // traceCallback :: proc "c" (logLevel: ray.TraceLogLevel, text: cstring, args: c.va_list) {};
-    ray.SetTraceLogCallback(proc "c" (logLevel: ray.TraceLogLevel, text: cstring, args: c.va_list) {});
     ray.SetWindowState({ ray.ConfigFlag.MSAA_4X_HINT });
     
     windowSize := int2{ x = 400, y = 800 };
