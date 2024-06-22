@@ -164,7 +164,6 @@ rotateShape :: proc(gameState: ^GameState) {
     }
 
     height := top - bottom;
-    width := right - left;
 
     // create tmp shape
     tmpShape := make([dynamic]int2, 0, cap(gameState.activeShape));
@@ -316,11 +315,11 @@ updateGameState :: proc(gameState: ^GameState, deltaTime: f32) {
 }
 
 checkFilledLines :: proc(gameState: ^GameState) {
-    for y : i32 = 0; y < MAP_SIZE_Y; y += 1 {
-        filledLineIndex : i32 = y;
+    for lineIndex : i32 = 0; lineIndex < MAP_SIZE_Y; lineIndex += 1 {
+        filledLineIndex : i32 = lineIndex;
 
         for x : i32 = 0; x < MAP_SIZE_X; x += 1 {
-            if (gameState.tiles[y][x] == 0) {
+            if (gameState.tiles[lineIndex][x] == 0) {
                 filledLineIndex = -1;
                 break;
             }

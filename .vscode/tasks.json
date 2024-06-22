@@ -11,7 +11,11 @@
                 "build",
                 ".",
                 "-debug",
-                "-out:bin/odin_tetris.exe"
+                "-out:bin/odin_tetris.exe",
+                "-subsystem:windows"
+                // "-o:speed",
+                // "-vet",
+                //"-sanitize:address",
            ]
         }
     ]
