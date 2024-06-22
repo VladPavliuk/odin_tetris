@@ -34,18 +34,18 @@ GameState :: struct {
 spawnShape :: proc(gameState: ^GameState) {
     clear(&gameState.activeShape);
     
-    data: []int = { 1, 2, 3, 4 };
-    randomShape := rand.choice(data[:]);
+    spawners := [?]proc (^GameState) {
+        spawnLine,
+        spawnRectangle,
+        spawnZip,
+        spawnFlippedZip,
+        spawnT,
+        spawnL,
+        spawnFlippedL,
+    };
 
-    if (randomShape == 1) {
-        spawnLine(gameState);
-    } else if (randomShape == 2) {
-        spawnRectangle(gameState);
-    } else if (randomShape == 3) {
-        spawnZip(gameState);
-    } else if (randomShape == 4) {
-        spawnFlippedZip(gameState);
-    }
+    randomSpawner := rand.choice(spawners[:]);
+    randomSpawner(gameState);
 
     offsetX : i32 = MAP_SIZE_X / 2;
     offsetY : i32 = MAP_SIZE_Y - 4;
@@ -58,38 +58,93 @@ spawnShape :: proc(gameState: ^GameState) {
 
 spawnLine :: proc(gameState: ^GameState) {
     gameState.activeShapeColor = ray.GREEN;
-    
-    append(&gameState.activeShape, int2{ 0, 0 });
-    append(&gameState.activeShape, int2{ 0, 1 });
-    append(&gameState.activeShape, int2{ 0, 2 });
-    append(&gameState.activeShape, int2{ 0, 3 });    
+
+    tiles := [?]int2{
+        { 0, 0 },
+        { 0, 1 },
+        { 0, 2 },
+        { 0, 3 }
+    };
+
+    append(&gameState.activeShape, ..tiles[:]);
 }
 
 spawnRectangle :: proc(gameState: ^GameState) {
     gameState.activeShapeColor = ray.YELLOW;
-    
-    append(&gameState.activeShape, int2{ 0, 0 });
-    append(&gameState.activeShape, int2{ 0, 1 });
-    append(&gameState.activeShape, int2{ 1, 0 });
-    append(&gameState.activeShape, int2{ 1, 1 });    
+
+    tiles := [?]int2{
+        { 0, 0 },
+        { 0, 1 },
+        { 1, 0 },
+        { 1, 1 }
+    };
+
+    append(&gameState.activeShape, ..tiles[:]);
 }
 
 spawnZip :: proc(gameState: ^GameState) {
     gameState.activeShapeColor = ray.BLUE;
-    
-    append(&gameState.activeShape, int2{ 0, 0 });
-    append(&gameState.activeShape, int2{ 1, 0 });
-    append(&gameState.activeShape, int2{ 1, 1 });
-    append(&gameState.activeShape, int2{ 2, 1 });    
+
+    tiles := [?]int2{
+        { 0, 0 },
+        { 1, 0 },
+        { 1, 1 },
+        { 2, 1 }
+    };
+
+    append(&gameState.activeShape, ..tiles[:]);
 }
 
 spawnFlippedZip :: proc(gameState: ^GameState) {
     gameState.activeShapeColor = ray.VIOLET;
     
-    append(&gameState.activeShape, int2{ 0, 0 });
-    append(&gameState.activeShape, int2{ 0, 1 });
-    append(&gameState.activeShape, int2{ 1, 1 });
-    append(&gameState.activeShape, int2{ 1, 2 });    
+    tiles := [?]int2{
+        { 0, 0 },
+        { 0, 1 },
+        { 1, 1 },
+        { 1, 2 }
+    };
+
+    append(&gameState.activeShape, ..tiles[:]);
+}
+
+spawnT :: proc(gameState: ^GameState) {
+    gameState.activeShapeColor = ray.MAGENTA;
+    
+    tiles := [?]int2{
+        { 0, 0 },
+        { 1, 0 },
+        { 2, 0 },
+        { 1, 1 }
+    };
+
+    append(&gameState.activeShape, ..tiles[:]);
+}
+
+spawnL :: proc(gameState: ^GameState) {
+    gameState.activeShapeColor = ray.LIME;
+    
+    tiles := [?]int2{
+        { 0, 0 },
+        { 1, 0 },
+        { 2, 0 },
+        { 2, 1 }
+    };
+
+    append(&gameState.activeShape, ..tiles[:]);
+}
+
+spawnFlippedL :: proc(gameState: ^GameState) {
+    gameState.activeShapeColor = ray.SKYBLUE;
+    
+    tiles := [?]int2{
+        { 0, 0 },
+        { 1, 0 },
+        { 2, 0 },
+        { 0, 1 }
+    };
+
+    append(&gameState.activeShape, ..tiles[:]);
 }
 
 rotateShape :: proc(gameState: ^GameState) {
@@ -155,10 +210,6 @@ isTileHitOtherShape :: proc(tile: int2, gameState: ^GameState) -> bool {
     return gameState.tiles[tile.y][tile.x] != 0;
 }
 
-// isAnyTile :: proc(proc (logLevel: TraceLogLevel, text: cstring, args: c.va_list)) -> bool {
-
-// }
-
 updateGameState :: proc(gameState: ^GameState, deltaTime: f32) {
     if (ray.IsKeyPressed(ray.KeyboardKey.S)) {
         gameState.isStoped = !gameState.isStoped;
@@ -175,6 +226,7 @@ updateGameState :: proc(gameState: ^GameState, deltaTime: f32) {
             gameState.isLost = false;
             gameState.score = 0;
             
+            // clear map
             for y : i32 = 0; y < MAP_SIZE_Y; y += 1 {
                 for x : i32 = 0; x < MAP_SIZE_X; x += 1 {
                     gameState.tiles[y][x] = 0;
