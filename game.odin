@@ -227,6 +227,7 @@ updateGameState :: proc(gameState: ^GameState, deltaTime: f32) {
         if (ray.IsKeyPressed(ray.KeyboardKey.R)) {
             gameState.isLost = false;
             gameState.score = 0;
+            clear(&gameState.nextShapes);
             
             // clear map
             for y : i32 = 0; y < MAP_SIZE_Y; y += 1 {
