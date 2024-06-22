@@ -34,7 +34,7 @@ GameState :: struct {
 spawnShape :: proc(gameState: ^GameState) {
     clear(&gameState.activeShape);
     
-    data: []int = { 1,2,3,4 };
+    data: []int = { 1, 2, 3, 4 };
     randomShape := rand.choice(data[:]);
 
     if (randomShape == 1) {
@@ -314,10 +314,20 @@ showUI :: proc(gameState: ^GameState, windowSize: int2) {
         gameState.hideHints = !gameState.hideHints;
     }
 
-    if (!gameState.hideHints) {        
-        ray.DrawText("H - Hide Hints", 0, 20, 16, ray.WHITE);
-        ray.DrawText("Q - Rotate", 0, 40, 16, ray.WHITE);
-        ray.DrawText("S - Stop", 0, 60, 16, ray.WHITE);
+    menuItems := [?]cstring{
+        "H - Hide Hints",
+        "Q - Rotate",
+        "S - Stop",
+        "SPACE - Fast"
+    };
+
+    if (!gameState.hideHints) {
+        startLocationY : i32 = 0;
+        for menuItem in menuItems {
+            textWidth := ray.MeasureText(menuItem, 18);
+            ray.DrawText(menuItem, windowSize.x - textWidth, startLocationY, 18, ray.WHITE);
+            startLocationY += 20;
+        }        
     }
 }
 
